@@ -57,6 +57,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.1"
+  change_app_package_name:
+    dependency: "direct dev"
+    description:
+      name: change_app_package_name
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.1.0"
   characters:
     dependency: transitive
     description:
@@ -317,6 +324,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.2.0"
+  in_app_update:
+    dependency: "direct main"
+    description:
+      name: in_app_update
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.0.0"
   js:
     dependency: transitive
     description:
