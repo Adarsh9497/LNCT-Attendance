@@ -146,7 +146,7 @@ class _PercentageState extends State<Percentage> {
                               maxLines: 1,
                               minFontSize: 0,
                               style: GoogleFonts.questrial(
-                                fontSize: 80.sp,
+                                fontSize: 75.sp,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -156,7 +156,7 @@ class _PercentageState extends State<Percentage> {
                               maxLines: 1,
                               minFontSize: 0,
                               style: GoogleFonts.questrial(
-                                fontSize: 48.sp,
+                                fontSize: 43.sp,
                                 color: kLightGreen,
                               ),
                             ),
@@ -176,16 +176,17 @@ class _PercentageState extends State<Percentage> {
                           children: [
                             Row(
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.circle,
                                   color: kLightGreen,
+                                  size: 50.sp,
                                 ),
                                 AutoSizeText(' Attended',
                                     maxLines: 1,
                                     minFontSize: 0,
                                     style: GoogleFonts.questrial(
                                       color: Colors.white,
-                                      fontSize: 48.sp,
+                                      fontSize: 43.sp,
                                     )),
                               ],
                             ),
@@ -194,16 +195,17 @@ class _PercentageState extends State<Percentage> {
                             ),
                             Row(
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.circle,
                                   color: kLightRed,
+                                  size: 50.sp,
                                 ),
                                 AutoSizeText(' Skipped',
                                     maxLines: 1,
                                     minFontSize: 0,
                                     style: GoogleFonts.questrial(
                                       color: kWhite,
-                                      fontSize: 48.sp,
+                                      fontSize: 43.sp,
                                     )),
                               ],
                             ),

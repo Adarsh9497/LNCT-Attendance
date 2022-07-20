@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_share/flutter_share.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:new_lnctattendance/models/sharedpref.dart';
 import 'package:new_lnctattendance/models/userdata.dart';
@@ -8,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../ui elements/webviewscreen.dart';
 import 'login_screen.dart';
 
 class Profile extends StatelessWidget {
@@ -145,46 +148,113 @@ class Profile extends StatelessWidget {
                     ],
                   ),
                 ),
-                TextButton(
-                  onPressed: () async {
-                    String url =
-                        'https://www.linkedin.com/in/adarsh-soni-7892aa198/';
-                    if (await canLaunch(url)) {
-                      await launch(url);
-                    } else {
-                      throw 'Could not launch $url';
-                    }
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.link,
-                        color: kLightYellow,
-                      ),
-                      SizedBox(
-                        width: 20.w,
-                      ),
-                      Flexible(
-                        child: AutoSizeText(
-                          'Developed by Adarsh Soni',
-                          maxLines: 1,
-                          minFontSize: 0,
-                          style: GoogleFonts.questrial(
-                            decoration: TextDecoration.underline,
-                            color: kLightYellow,
-                            fontSize: 50.sp,
-                          ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    navigateButton(
+                        title: 'Linkedin',
+                        url:
+                            'https://www.linkedin.com/in/adarsh-soni-7892aa198/',
+                        iconData: FontAwesomeIcons.linkedin),
+                    navigateButton(
+                      title: 'Github',
+                      url: 'https://github.com/Adarsh9497/LNCT-Attendance',
+                      iconData: FontAwesomeIcons.github,
+                    ),
+                    Column(
+                      children: [
+                        IconButton(
+                            onPressed: () async {
+                              String url =
+                                  'https://myattendance.page.link/lnctattendance';
+                              await FlutterShare.share(
+                                title: 'LNCT Attendance App',
+                                text:
+                                    'Now check your college attendance status anytime, anywhere with this attendance app! Download now on Playstore: https://myattendance.page.link/lnctattendance',
+                                linkUrl: url,
+                              );
+                            },
+                            icon: Icon(
+                              FontAwesomeIcons.shareNodes,
+                              color: kWhite,
+                              size: 80.sp,
+                            )),
+                        SizedBox(
+                          height: 10.h,
                         ),
-                      ),
-                    ],
-                  ),
+                        Text(
+                          'Share app',
+                          textScaleFactor: 1.0,
+                          style: TextStyle(color: kWhite, fontSize: 40.sp),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        IconButton(
+                            onPressed: () async {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const WebViewScreen(
+                                            url:
+                                                'https://docs.google.com/forms/d/e/1FAIpQLScDmkXUWGhC03BAbkIMG_jaYwyOICSmnqslJigu0l67tXN2Zg/viewform?usp=sf_link',
+                                            title: 'Feedback',
+                                          )));
+                            },
+                            icon: Icon(
+                              FontAwesomeIcons.bug,
+                              color: kWhite,
+                              size: 80.sp,
+                            )),
+                        SizedBox(
+                          height: 10.h,
+                        ),
+                        Text(
+                          'Feedback',
+                          textScaleFactor: 1.0,
+                          style: TextStyle(color: kWhite, fontSize: 40.sp),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget navigateButton(
+      {required String title,
+      required String url,
+      required IconData iconData}) {
+    return Column(
+      children: [
+        IconButton(
+            onPressed: () async {
+              if (await canLaunch(url)) {
+                await launch(url);
+              } else {
+                throw 'Could not launch url';
+              }
+            },
+            icon: Icon(
+              iconData,
+              color: kWhite,
+              size: 80.sp,
+            )),
+        SizedBox(
+          height: 10.h,
+        ),
+        Text(
+          title,
+          textScaleFactor: 1.0,
+          style: TextStyle(color: kWhite, fontSize: 40.sp),
+        ),
+      ],
     );
   }
 }
@@ -213,7 +283,7 @@ class UserCards extends StatelessWidget {
           name,
           maxLines: 2,
           style: GoogleFonts.questrial(
-            fontSize: 55.sp,
+            fontSize: 50.sp,
             color: colour,
           ),
         ),

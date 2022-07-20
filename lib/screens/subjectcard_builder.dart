@@ -53,7 +53,7 @@ class SubjectCardBuilder extends StatelessWidget {
                   : "Error",
               style: GoogleFonts.questrial(
                 color: kWhite,
-                fontSize: 50.sp,
+                fontSize: 45.sp,
               ),
             )));
   }

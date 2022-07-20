@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:new_lnctattendance/models/sharedpref.dart';
@@ -10,6 +12,9 @@ import 'package:provider/provider.dart';
 Map data = {};
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  FirebaseFirestore.instance.settings =
+      const Settings(cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED);
   await MySharedPref.init();
   final name = MySharedPref.getField(keyName);
   final imageUrl = MySharedPref.getField(keyImageURL);
@@ -43,6 +48,13 @@ class MyApp extends StatelessWidget {
         designSize: const Size(1080, 2340),
         builder: (context, child) => MaterialApp(
           debugShowCheckedModeBanner: false,
+          builder: (BuildContext context, child) {
+            return MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  textScaleFactor: 1.0,
+                ),
+                child: child ?? const SizedBox());
+          },
           theme: ThemeData(
             primaryColor: kBackgroundColor,
             scaffoldBackgroundColor: kBackgroundColor,
