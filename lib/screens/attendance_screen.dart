@@ -1,5 +1,8 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,6 +14,7 @@ import 'package:new_lnctattendance/screens/subjectcard_builder.dart';
 import 'package:new_lnctattendance/ui%20elements/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/userdata.dart';
 import '../ui elements/constants.dart';
@@ -25,9 +29,14 @@ class AttendanceScreen extends StatefulWidget {
 class _AttendanceScreenState extends State<AttendanceScreen> {
   bool isLoading = false;
   bool ploading = false;
+  bool hideBanner = false;
   bool error = false;
   bool pressed = false;
   DateTime d = DateTime.now();
+  String? dbImageURL;
+  String? dbImageDataURL;
+  bool showCross = false;
+  String? imageTitle;
 
   String getsuperscript(int n) {
     if (n == 1 || n == 21) {
@@ -59,6 +68,39 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     ploading = true;
     loadPercent();
     loadSubject();
+    init();
+  }
+
+  Future<void> startTimer() async {
+    await Future.delayed(const Duration(seconds: 30));
+    setState(() {
+      showCross = true;
+    });
+  }
+
+  void init() async {
+    bool showBanner = true;
+    Map<String, dynamic>? data;
+    var collection = FirebaseFirestore.instance.collection('admin');
+    await collection.doc('banner').get().then((snapshot) {
+      data = snapshot.data();
+      if (data != null) {
+        showBanner = data!['showBanner'] ?? true;
+        if (showBanner == false) {
+          return;
+        }
+        imageTitle = data!['title'];
+        dbImageURL = data!['imageURL'];
+        dbImageDataURL = data!['imageData'];
+        startTimer();
+        setState(() {});
+      }
+    }).catchError((error) {
+      if (kDebugMode) {
+        print('$error');
+        print("couldn't fetch data");
+      }
+    });
   }
 
   void loadPercent() async {
@@ -121,6 +163,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
           width: 0.6.sw,
           child: Text(
             'Welcome, ${getUserName(loginProvider)}',
+            textScaleFactor: 1.0,
           ),
         ),
         actions: [
@@ -138,14 +181,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             ),
           )
         ],
-        // bottom: (loginProvider.isViewAttendance &&
-        //         loginProvider.iserror == false &&
-        //         loginProvider.isSubjecterror == false)
-        //     ? MyLinearProgressIndicator(
-        //         backgroundColor: kCardbackgroundcolor,
-        //         valueColor: AlwaysStoppedAnimation<Color>(kLightgreen),
-        //       )
-        //     : null,
       ),
       body: SafeArea(
         child: ListView(
@@ -158,14 +193,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     //TODO container for showing date
-
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           weekdays[d.weekday],
+                          textScaleFactor: 1,
                           style: GoogleFonts.questrial(
-                              fontSize: 45.sp, color: Colors.white),
+                              fontSize: 42.sp, color: Colors.white),
                         ),
                         EasyRichText(
                           "${d.day}${getsuperscript(d.day)} ${months[d.month]}  ${d.year}",
@@ -202,14 +237,82 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                         ),
                       ],
                     ),
+                    SizedBox(
+                      height: 30.h,
+                    ),
+                    if (hideBanner == false && dbImageURL != null)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Stack(
+                            children: [
+                              Container(
+                                margin: EdgeInsets.symmetric(vertical: 30.h),
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    String url = dbImageDataURL ?? '';
+                                    if (await canLaunch(url)) {
+                                      await launch(url);
+                                    } else {
+                                      throw 'Could not launch url';
+                                    }
+                                  },
+                                  child: AspectRatio(
+                                    aspectRatio: 22 / 9,
+                                    child: ClipRRect(
+                                      borderRadius:
+                                          BorderRadius.circular(15), // Ima
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(15.0),
+                                          color: kCardBackgroundColor,
+                                        ),
+                                        child: CachedNetworkImage(
+                                          imageUrl: dbImageURL ?? '',
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              if (showCross)
+                                Align(
+                                  alignment: Alignment.topRight,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        hideBanner = true;
+                                      });
+                                    },
+                                    child: const Icon(
+                                      Icons.cancel,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                )
+                            ],
+                          ),
+                          if (imageTitle != null)
+                            Text(
+                              imageTitle ?? '',
+                              textScaleFactor: 1,
+                              style: GoogleFonts.questrial(
+                                fontWeight: FontWeight.w500,
+                                color: kWhite,
+                                fontSize: 43.sp,
+                              ),
+                            ),
+                        ],
+                      ),
 
-                    //TODO overall attendance text
                     Padding(
                       padding: EdgeInsets.only(top: 80.h, bottom: 20.h),
                       child: Text(
                         ' Overall Attendance',
                         style: GoogleFonts.questrial(
-                          fontSize: 52.sp,
+                          fontSize: 50.sp,
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                         ),
@@ -232,7 +335,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           PageRouteBuilder(
                             pageBuilder: (context, animation1, animation2) =>
                                 DateWise(),
-                            transitionDuration: const Duration(seconds: 0),
+                            transitionDuration: const Duration(seconds: 15),
                           ),
                         );
                       },
@@ -241,7 +344,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                         maxLines: 1,
                         minFontSize: 0,
                         style: TextStyle(
-                            fontSize: 50.sp,
+                            fontSize: 45.sp,
                             color: kWhite,
                             fontWeight: FontWeight.w500),
                       ),
@@ -253,7 +356,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                       child: Text(
                         ' Subjects',
                         style: GoogleFonts.questrial(
-                          fontSize: 52.sp,
+                          fontSize: 50.sp,
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                         ),
@@ -276,7 +379,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                         fontSize: 50.sp, color: kWhite),
                                   )
                                 : SubjectCardBuilder())
-                            : Center(
+                            : const Center(
                                 child: CircularProgressIndicator(
                                 color: kLightGreen,
                               )),
