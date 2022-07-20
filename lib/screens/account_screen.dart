@@ -142,6 +142,25 @@ class Profile extends StatelessWidget {
                         name: loginProvider.data['branch'],
                         colour: kLightYellow,
                       ),
+                      GestureDetector(
+                        onTap: () async {
+                          String url =
+                              'https://sites.google.com/view/lnctattendance-privacy-policy/home';
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => WebViewScreen(
+                                        url: url,
+                                        title: 'Privacy Policy',
+                                      )));
+                        },
+                        child: const UserCards(
+                          icon: Icons.document_scanner_rounded,
+                          name: 'Privacy Policy',
+                          colour: Colors.green,
+                          borderColor: Colors.green,
+                        ),
+                      ),
                       SizedBox(
                         height: 100.h,
                       ),
@@ -219,6 +238,9 @@ class Profile extends StatelessWidget {
                     ),
                   ],
                 ),
+                SizedBox(
+                  height: 100.h,
+                ),
               ],
             ),
           ),
@@ -261,10 +283,14 @@ class Profile extends StatelessWidget {
 
 class UserCards extends StatelessWidget {
   const UserCards(
-      {required this.icon, required this.name, required this.colour});
+      {required this.icon,
+      required this.name,
+      required this.colour,
+      this.borderColor});
   final IconData icon;
   final String name;
   final Color colour;
+  final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
@@ -272,7 +298,8 @@ class UserCards extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 30.h),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8.0),
-          border: Border.all(color: kCardBackgroundColor, width: 2.0)),
+          border: Border.all(
+              color: borderColor ?? kCardBackgroundColor, width: 2.0)),
       child: ListTile(
         leading: Icon(
           icon,
@@ -282,8 +309,9 @@ class UserCards extends StatelessWidget {
         title: Text(
           name,
           maxLines: 2,
+          textScaleFactor: 1.0,
           style: GoogleFonts.questrial(
-            fontSize: 50.sp,
+            fontSize: 46.sp,
             color: colour,
           ),
         ),

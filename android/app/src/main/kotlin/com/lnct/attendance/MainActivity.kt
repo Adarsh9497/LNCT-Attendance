@@ -1,4 +1,4 @@
-package com.lnct.attendance.new_lnctattendance
+package com.lnct.attendance
 
 import io.flutter.embedding.android.FlutterActivity
 
