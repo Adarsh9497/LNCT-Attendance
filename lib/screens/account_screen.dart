@@ -5,15 +5,20 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:new_lnctattendance/models/sharedpref.dart';
 import 'package:new_lnctattendance/models/userdata.dart';
 import 'package:new_lnctattendance/ui%20elements/colors.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../ui elements/webviewscreen.dart';
 import 'login_screen.dart';
 
-class Profile extends StatelessWidget {
+class Profile extends StatefulWidget {
+  @override
+  State<Profile> createState() => _ProfileState();
+}
+
+class _ProfileState extends State<Profile> {
   String getTh(String n) {
     if (n == '1') {
       return 'st';
@@ -26,8 +31,14 @@ class Profile extends StatelessWidget {
     }
   }
 
+  String version = '';
+
   @override
   Widget build(BuildContext context) {
+    PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
+      version = packageInfo.version;
+      setState(() {});
+    });
     UserData loginProvider = Provider.of<UserData>(context);
     return Scaffold(
       appBar: AppBar(
@@ -96,34 +107,41 @@ class Profile extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                CircleAvatar(
-                  backgroundColor: Colors.transparent,
-                  radius: 150.w,
-                  child: const Image(
-                    image: AssetImage('images/lnct_logo.png'),
+                ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    radius: 120.w,
+                    child: const Image(
+                      image: AssetImage('images/lnct_logo.png'),
+                    ),
+                  ),
+                  title: Text(
+                    loginProvider.data['name'],
+                    textScaleFactor: 1.0,
+                    style: GoogleFonts.questrial(
+                      fontSize: 60.sp,
+                      color: kLightGreen,
+                    ),
+                  ),
+                  subtitle: Padding(
+                    padding: EdgeInsets.only(top: 20.h),
+                    child: Text(
+                      loginProvider.data['username'],
+                      style: GoogleFonts.questrial(
+                        fontSize: 46.sp,
+                        color: kLightYellow,
+                      ),
+                    ),
                   ),
                 ),
-                Container(
-                  width: double.infinity,
-                  height: 1.0,
-                  margin: EdgeInsets.symmetric(vertical: 60.h),
-                  color: kCardBackgroundColor,
+                SizedBox(
+                  height: 100.h,
                 ),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 40.w),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      UserCards(
-                        icon: Icons.perm_identity,
-                        name: loginProvider.data['name'],
-                        colour: kLightGreen,
-                      ),
-                      UserCards(
-                        icon: Icons.verified_user,
-                        name: loginProvider.data['username'],
-                        colour: kLightYellow,
-                      ),
                       UserCards(
                         icon: Icons.school,
                         name: (loginProvider.data['lnctu'] == true)
@@ -189,8 +207,7 @@ class Profile extends StatelessWidget {
                               await FlutterShare.share(
                                 title: 'LNCT Attendance App',
                                 text:
-                                    'Now check your college attendance status anytime, anywhere with this attendance app! Download now on Playstore: https://myattendance.page.link/lnctattendance',
-                                linkUrl: url,
+                                    'Now check your college attendance status anytime, anywhere with this attendance app!\nDownload now on playstore:\nhttps://myattendance.page.link/lnctattendance',
                               );
                             },
                             icon: Icon(
@@ -237,6 +254,16 @@ class Profile extends StatelessWidget {
                       ],
                     ),
                   ],
+                ),
+                SizedBox(
+                  height: 200.h,
+                ),
+                Text(
+                  'v $version',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 45.sp,
+                  ),
                 ),
                 SizedBox(
                   height: 100.h,

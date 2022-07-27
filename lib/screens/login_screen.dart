@@ -5,7 +5,7 @@ import 'package:new_lnctattendance/models/sharedpref.dart';
 import 'package:new_lnctattendance/models/userdata.dart';
 import 'package:new_lnctattendance/ui%20elements/colors.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 import 'attendance_screen.dart';
@@ -58,6 +58,26 @@ class _LoginState extends State<Login> {
     );
   }
 
+  @override
+  void initState() {
+    super.initState();
+    init();
+  }
+
+  late int accStatusCode;
+
+  void init() async {
+    dynamic status = await http
+        .get(Uri.parse('http://portal.lnct.ac.in/Accsoft2/studentLogin.aspx'));
+    print(status.statusCode);
+    setState(() {
+      accStatusCode = status.statusCode;
+      if (accStatusCode != 200) {
+        msg = "Accsoft servers are down at the moment. Please come back later!";
+      }
+    });
+  }
+
   void login() async {
     if (isLoading == true) return null;
     setState(() => isLoading = true);
@@ -66,7 +86,6 @@ class _LoginState extends State<Login> {
     try {
       dynamic res = await Provider.of<UserData>(context, listen: false)
           .login(_id.text, password, lnctu);
-
       await MySharedPref.setField(id: _id.text, key: keyUserName);
       await MySharedPref.setField(id: password, key: keyPassword);
       await MySharedPref.setField(id: res['Name'], key: keyName);
@@ -78,6 +97,7 @@ class _LoginState extends State<Login> {
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => AttendanceScreen()));
     } catch (e) {
+      print(e);
       setState(() {
         isLoading = false;
         msg = 'Id or Password is not Valid!';
@@ -143,18 +163,44 @@ class _LoginState extends State<Login> {
                   children: [
                     CircleAvatar(
                       backgroundColor: Colors.transparent,
-                      radius: 170.w,
+                      radius: 150.w,
                       child: Image.asset('images/lnct_logo.png'),
                     ),
                     SizedBox(
                       height: 50.h,
                     ),
-                    Text(msg,
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 55.sp,
-                        )),
+                    if (msg.isNotEmpty)
+                      Container(
+                        margin: EdgeInsets.only(bottom: 20.h, top: 10.h),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 50.w, vertical: 20.h),
+                        decoration: BoxDecoration(
+                          color: Colors.grey,
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              color: Colors.red.shade900,
+                              size: 55.sp,
+                            ),
+                            SizedBox(
+                              width: 30.w,
+                            ),
+                            Flexible(
+                              child: Text(msg,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 45.sp,
+                                  )),
+                            ),
+                          ],
+                        ),
+                      ),
                     SizedBox(
                       height: 50.h,
                     ),
@@ -172,25 +218,26 @@ class _LoginState extends State<Login> {
                       },
                       keyboardType: TextInputType.number,
                       style: TextStyle(
-                          color: Colors.white, height: 1.5, fontSize: 55.sp),
+                          color: Colors.white, height: 1.5, fontSize: 50.sp),
                       decoration: InputDecoration(
                         focusedBorder: OutlineInputBorder(
                           borderSide: const BorderSide(
                             color: Colors.white,
                           ),
-                          borderRadius: BorderRadius.circular(25.0),
+                          borderRadius: BorderRadius.circular(10.0),
                         ),
                         prefixIcon: Icon(
                           Icons.perm_identity_rounded,
                           color: Colors.white,
                           size: 60.sp,
                         ),
+                        isDense: true,
                         labelText: 'AccSoft ID',
                         labelStyle: const TextStyle(color: Colors.white),
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Colors.white),
-                            borderRadius: BorderRadius.circular(20)),
+                            borderSide: const BorderSide(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(10)),
                       ),
                     ),
                     SizedBox(
@@ -211,26 +258,27 @@ class _LoginState extends State<Login> {
                           style: TextStyle(
                               color: Colors.white,
                               height: 1.5,
-                              fontSize: 55.sp),
+                              fontSize: 50.sp),
                           decoration: InputDecoration(
                             focusedBorder: OutlineInputBorder(
                               borderSide: const BorderSide(
                                 color: Colors.white,
                               ),
-                              borderRadius: BorderRadius.circular(25.0),
+                              borderRadius: BorderRadius.circular(10.0),
                             ),
                             prefixIcon: Icon(
                               Icons.password,
                               color: Colors.white,
                               size: 60.sp,
                             ),
+                            isDense: true,
                             labelText: 'Password',
                             labelStyle: const TextStyle(color: Colors.white),
                             fillColor: Colors.white,
                             border: OutlineInputBorder(
                                 borderSide:
                                     const BorderSide(color: Colors.white),
-                                borderRadius: BorderRadius.circular(20)),
+                                borderRadius: BorderRadius.circular(10)),
                           ),
                         ),
                         TextButton(
@@ -240,9 +288,7 @@ class _LoginState extends State<Login> {
                           child: Text(
                             'Forget Password?',
                             style: TextStyle(
-                                color: Colors.grey.shade500,
-                                fontFamily: 'Questrial',
-                                fontSize: 50.sp),
+                                color: Colors.grey.shade500, fontSize: 40.sp),
                           ),
                         ),
                       ],
@@ -251,8 +297,8 @@ class _LoginState extends State<Login> {
                       height: 50.h,
                     ),
                     Text(
-                      'Select College:',
-                      style: TextStyle(color: Colors.white, fontSize: 55.sp),
+                      'Select College',
+                      style: TextStyle(color: Colors.white, fontSize: 50.sp),
                     ),
                     if (showCollegeError == true)
                       Column(
@@ -301,7 +347,7 @@ class _LoginState extends State<Login> {
                               child: Text(
                                 'LNCT',
                                 style: TextStyle(
-                                    color: Colors.white, fontSize: 55.sp),
+                                    color: Colors.white, fontSize: 50.sp),
                               ),
                             ),
                           ),
@@ -336,7 +382,7 @@ class _LoginState extends State<Login> {
                               child: Text(
                                 'LNCTU',
                                 style: TextStyle(
-                                    color: Colors.white, fontSize: 55.sp),
+                                    color: Colors.white, fontSize: 50.sp),
                               ),
                             ),
                           ),
@@ -377,7 +423,7 @@ class _LoginState extends State<Login> {
                       },
                       child: Text(
                         'New Student? Sign Up',
-                        style: TextStyle(color: Colors.white, fontSize: 50.sp),
+                        style: TextStyle(color: Colors.white, fontSize: 45.sp),
                       ),
                     ),
                   ],

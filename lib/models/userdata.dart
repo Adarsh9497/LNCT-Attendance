@@ -77,7 +77,7 @@ class UserData with ChangeNotifier {
       };
       return res;
     } catch (err) {
-      return throw Exception('Error');
+      return throw Exception('error');
     }
   }
 

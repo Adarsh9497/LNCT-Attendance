@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:new_lnctattendance/models/userdata.dart';
 import 'package:new_lnctattendance/ui%20elements/colors.dart';
+import 'package:new_lnctattendance/ui%20elements/constants.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:easy_rich_text/easy_rich_text.dart';
 import 'package:provider/provider.dart';
@@ -18,8 +19,66 @@ class _PercentageState extends State<Percentage> {
   bool isSafe = false;
   bool buttonPressed = false;
 
-  Widget getStatus(double percent, int daysNeeded) {
-    if (percent >= 75.0) {
+  String getUserName(String name) {
+    name = name.split(' ')[0];
+    return name.toLowerCase();
+  }
+
+  Widget getStatus(double percent, int daysNeeded, String? loginProvider) {
+    int weekday = DateTime.now().weekday;
+    if (loginProvider != null &&
+        percent >= 75.0 &&
+        (weekdays[weekday] == 'Saturday' || weekdays[weekday] == 'Sunday')) {
+      return RichText(
+        textAlign: TextAlign.center,
+        text: TextSpan(
+            text:
+                "Enjoy the weekend ${getUserName(loginProvider)}.\nYou've good attendance",
+            style: GoogleFonts.questrial(fontSize: 50.sp, color: kWhite),
+            children: [
+              TextSpan(
+                text: ' Keep it up',
+                style: GoogleFonts.questrial(
+                  fontSize: 50.sp,
+                  color: kLightGreen,
+                  fontWeight: FontWeight.bold,
+                ),
+              )
+            ]),
+      );
+    } else if (percent >= 90.0) {
+      return EasyRichText(
+        "WOW! You have great attendance 🙌.\nKeep it up!",
+        defaultStyle: GoogleFonts.questrial(fontSize: 47.sp, color: kWhite),
+        textAlign: TextAlign.center,
+        patternList: [
+          EasyRichTextPattern(
+              targetString: 'Keep it up!',
+              stringBeforeTarget: "WOW! You have great attendance 🙌.",
+              style: GoogleFonts.questrial(
+                fontSize: 47.sp,
+                color: kLightGreen,
+                fontWeight: FontWeight.bold,
+              )),
+        ],
+      );
+    } else if (percent >= 80.0) {
+      return RichText(
+        text: TextSpan(
+            text: "You're doing great !",
+            style: GoogleFonts.questrial(fontSize: 50.sp, color: kWhite),
+            children: [
+              TextSpan(
+                text: ' Keep it up',
+                style: GoogleFonts.questrial(
+                  fontSize: 50.sp,
+                  color: kLightGreen,
+                  fontWeight: FontWeight.bold,
+                ),
+              )
+            ]),
+      );
+    } else if (percent >= 75.0) {
       return EasyRichText(
         "Pheww... You're  Safe !",
         defaultStyle: GoogleFonts.questrial(fontSize: 50.sp, color: kWhite),
@@ -91,7 +150,7 @@ class _PercentageState extends State<Percentage> {
           ),
           Expanded(
             child: Text(
-                "Sorry! There's been an error on server side or classes for this semester haven't started yet. We’ll update this message when classes start. Have a great day!",
+                "Sorry! There's been an error on server side or please check your internet connection. We’ll update this message when error is gone. Have a great day!",
                 style: TextStyle(
                   fontSize: 45.sp,
                   color: Colors.black,
@@ -219,7 +278,7 @@ class _PercentageState extends State<Percentage> {
                           child: RawMaterialButton(
                             shape: const CircleBorder(),
                             elevation: 6.0,
-                            fillColor: Colors.indigo[400],
+                            fillColor: const Color(0xFF414E75),
                             onPressed: () async {
                               loginProvider.resetErrors();
                               loginProvider.viewAttendancePressed(true);
@@ -249,8 +308,8 @@ class _PercentageState extends State<Percentage> {
                   height: 60.h,
                 ),
                 (loginProvider.iserror == false)
-                    ? getStatus(
-                        loginProvider.percentage, loginProvider.daysNeeded)
+                    ? getStatus(loginProvider.percentage,
+                        loginProvider.daysNeeded, loginProvider.data['name'])
                     : showMsg(),
               ],
             ),
@@ -260,7 +319,7 @@ class _PercentageState extends State<Percentage> {
         //TODO Container below percentage Card
         Container(
           margin: EdgeInsets.symmetric(
-            horizontal: 20.w,
+            horizontal: 5.w,
             vertical: 45.h,
           ),
           padding: const EdgeInsets.all(8.0),
